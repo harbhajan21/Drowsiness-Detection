@@ -1,70 +1,3 @@
-"""
-# Importing all the required packages
-# import pandas as pd
-import numpy as np
-import cv2
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-
-# Model Path
-model_path = '/pose_landmarker_heavy.task'
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_pose = mp.solutions.pose
-
-# # For webcam input:
-cap = cv2.VideoCapture(0)
-
-with mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as pose:
-  
-    while cap.isOpened():
-        success, image = cap.read()
-        if not success:
-            print("Ignoring empty camera frame.")
-            # If loading a video, use 'break' instead of 'continue'.
-            continue
-
-        # To improve performance, optionally mark the image as not writeable to
-        # pass by reference.
-        image.flags.writeable = False
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = pose.process(image)
-
-        # Draw the pose annotation on the image.
-        image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        mp_drawing.draw_landmarks(
-            image,
-            results.pose_landmarks,
-            mp_pose.POSE_CONNECTIONS,
-            landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-        
-        # Print landmark point numbers
-        if results.pose_landmarks:
-            for i, landmark in enumerate(results.pose_landmarks.landmark):
-                h, w, _ = image.shape
-                cx, cy = int(landmark.x * w), int(landmark.y * h)
-                cv2.putText(image, f"{i}", (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
-
-        # Flip the image horizontally for a selfie-view display.
-        # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
-        # Normal view
-        cv2.imshow('MediaPipe Pose', image)
-
-        
-        if cv2.waitKey(5) & 0xFF == 27:
-            break
-
-cap.release()
-# cv2.destroyAllWindows()
-
-
-"""
-
-
 # Importing important Libraries
 from scipy.spatial import distance as dist
 from imutils.video import VideoStream
@@ -79,78 +12,12 @@ import dlib
 import cv2
 import numpy as np
 
-"""
-# Known parameters
-KNOWN_WIDTH = 0.14  # The actual width of the face (in meters)
-FOCAL_LENGTH = 615  # The focal length of your camera (in pixels)
-
-# Initialize face detector
-detector = dlib.get_frontal_face_detector()
-
-# Choose source: webcam or video file
-source = 0  # Use 0 for webcam. Replace 0 with 'filename.mp4' for a video file
-
-# For webcam or video file input:
-cap = cv2.VideoCapture(source)
-
-while cap.isOpened():
-    success, image = cap.read()
-    if not success:
-        print("Ignoring empty camera frame.")
-        # If loading a video, use 'break' instead of 'continue'.
-        continue
-
-    # Resize the frame
-    image = cv2.resize(image, (640, 480))
-
-    # Convert to grayscale for face detection
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Detect faces
-    faces = detector(gray)
-
-    for rect in faces:
-        # Draw a rectangle around the face
-        x1, y1, x2, y2 = rect.left(), rect.top(), rect.right(), rect.bottom()
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-        # Calculate the pixel width of the face
-        pixel_width = x2 - x1
-
-        # Calculate the distance to the face
-        distance = (KNOWN_WIDTH * FOCAL_LENGTH) / pixel_width
-        print(f"The estimated distance to the face is: {distance*100} centimeters")
-
-    # Normal view
-    cv2.imshow('Face Detection', image)
-
-    if cv2.waitKey(5) & 0xFF == 27:
-        break
-
-cap.release()
-cv2.destroyAllWindows()
-
-"""
-
-# Importing important Libraries
-from scipy.spatial import distance as dist
-from imutils.video import VideoStream
-from imutils import face_utils
-from threading import Thread
-import numpy as np
-import playsound
-import argparse
-import imutils
-import time
-import dlib
-import cv2
-import numpy as np
-
-
+# Function for sound
 def sound_alarm(path):
 	# play an alarm sound
 	playsound.playsound(path)
- 
+
+# Function to calculate the eye aspect ratio
 def eye_aspect_ratio(eye):
 	# compute the euclidean distances between the two sets of
 	# vertical eye landmarks (x, y)-coordinates
@@ -273,5 +140,3 @@ while True:
 # do a bit of cleanup
 cv2.destroyAllWindows()
 vs.stop()
-   
-  
